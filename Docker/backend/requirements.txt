@@ -1,0 +1,4 @@
+google-cloud-vision
+flask
+flask-cors
+gunicorn
