@@ -21,7 +21,7 @@ services:
     depends_on:
       - db
     environment:
-      - GOOGLE_APPLICATION_CREDENTIALS=/app/google-credentials.json
+      - GOOGLE_APPLICATION_CREDENTIALS=/app/backend/google-credentials.json
       - FLASK_APP=/app/backend/app.py
     command: flask run --host=0.0.0.0
   db:
