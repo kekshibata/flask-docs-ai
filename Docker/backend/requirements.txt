@@ -2,3 +2,4 @@ google-cloud-vision
 flask
 flask-cors
 gunicorn
+google-cloud-documentai
