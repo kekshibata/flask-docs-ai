@@ -1,32 +1,3 @@
-<!-- <template> -->
-<!--   <div> -->
-<!--     <div -->
-<!--       @dragover.prevent="handleDragOver" -->
-<!--       @drop.prevent="handleDrop" -->
-<!--       @click="openFileExplorer" -->
-<!--       class="drop-zone" -->
-<!--     > -->
-<!--       クリックしてファイルを選択するか、ここにファイルをドロップしてください。 -->
-<!--     </div> -->
-<!--     <input -->
-<!--       type="file" -->
-<!--       ref="fileInput" -->
-<!--       @change="handleFileUpload" -->
-<!--       style="display: none" -->
-<!--       multiple -->
-<!--     /> -->
-<!--     <div v-if="uploading"> -->
-<!--       <progress max="100" :value.prop="uploadProgress"></progress> -->
-<!--       Uploading: {{ uploadProgress }}% -->
-<!--     </div> -->
-<!--     <div v-if="uploadSuccess">Successfully uploaded files.</div> -->
-<!--     <div v-if="extractedText"> -->
-<!--       <h3>Extracted Text:</h3> -->
-<!--       <pre>{{ extractedText }}</pre> -->
-<!--     </div> -->
-<!--   </div> -->
-<!-- </template> -->
-
 <template>
   <el-container>
     <el-header>
@@ -188,28 +159,4 @@ export default {
   font-size: 0.8em;
   margin-top: 1em;
 }
-/* .dots { */
-/*   animation: blink 1s linear infinite; */
-/* } */
-/* @keyframes blink { */
-/*   0% { */
-/*     opacity: 1; */
-/*   } */
-/*   50% { */
-/*     opacity: 0; */
-/*   } */
-/*   100% { */
-/*     opacity: 1; */
-/*   } */
-/* } */
-/* .drop-zone { */
-/*   border: 2px dashed #ccc; */
-/*   border-radius: 5px; */
-/*   padding: 50px; */
-/*   text-align: center; */
-/*   cursor: pointer; */
-/* } */
-/* .drop-zone:hover { */
-/*   background-color: #eee; */
-/* } */
 </style>

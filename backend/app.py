@@ -83,6 +83,5 @@ def process():
         return jsonify({"message": "PDF processing failed"}), 500
 
 
-
 if __name__ == '__main__':
     app.run(debug=True)
