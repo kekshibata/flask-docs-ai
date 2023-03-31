@@ -1,30 +1,76 @@
+<!-- <template> -->
+<!--   <div> -->
+<!--     <div -->
+<!--       @dragover.prevent="handleDragOver" -->
+<!--       @drop.prevent="handleDrop" -->
+<!--       @click="openFileExplorer" -->
+<!--       class="drop-zone" -->
+<!--     > -->
+<!--       クリックしてファイルを選択するか、ここにファイルをドロップしてください。 -->
+<!--     </div> -->
+<!--     <input -->
+<!--       type="file" -->
+<!--       ref="fileInput" -->
+<!--       @change="handleFileUpload" -->
+<!--       style="display: none" -->
+<!--       multiple -->
+<!--     /> -->
+<!--     <div v-if="uploading"> -->
+<!--       <progress max="100" :value.prop="uploadProgress"></progress> -->
+<!--       Uploading: {{ uploadProgress }}% -->
+<!--     </div> -->
+<!--     <div v-if="uploadSuccess">Successfully uploaded files.</div> -->
+<!--     <div v-if="extractedText"> -->
+<!--       <h3>Extracted Text:</h3> -->
+<!--       <pre>{{ extractedText }}</pre> -->
+<!--     </div> -->
+<!--   </div> -->
+<!-- </template> -->
+
 <template>
-  <div>
-    <div
-      @dragover.prevent="handleDragOver"
-      @drop.prevent="handleDrop"
-      @click="openFileExplorer"
-      class="drop-zone"
-    >
-      クリックしてファイルを選択するか、ここにファイルをドロップしてください。
-    </div>
-    <input
-      type="file"
-      ref="fileInput"
-      @change="handleFileUpload"
-      style="display: none"
-      multiple
-    />
-    <div v-if="uploading">
-      <progress max="100" :value.prop="uploadProgress"></progress>
-      Uploading: {{ uploadProgress }}%
-    </div>
-    <div v-if="uploadSuccess">Successfully uploaded files.</div>
-    <div v-if="extractedText">
-      <h3>Extracted Text:</h3>
-      <pre>{{ extractedText }}</pre>
-    </div>
-  </div>
+  <el-container>
+    <el-header>
+      <h2>PDF要約</h2>
+    </el-header>
+    <el-main>
+      <el-upload
+        ref="upload"
+        action="#"
+        drag
+        :auto-upload="false"
+        :file-list="files"
+        :on-change="uploadFiles"
+        :show-file-list="false"
+        :http-request="() => {}"
+      >
+        <i class="el-icon-upload"></i>
+        <div class="el-upload__text">
+          ドラッグ&ドロップ または <em>クリックしてアップロード</em>する
+        </div>
+        <div slot="tip" class="el-upload__tip">
+          Only PDF files are supported.
+        </div>
+      </el-upload>
+      <el-progress
+        v-if="uploading"
+        :percentage="uploadProgress"
+        status="success"
+      ></el-progress>
+      <el-alert
+        v-if="uploadSuccess"
+        title="Files uploaded successfully."
+        type="success"
+        :closable="false"
+      ></el-alert>
+      <el-input
+        v-if="extractedText"
+        type="textarea"
+        :rows="5"
+        :readonly="true"
+        :value="extractedText"
+      ></el-input>
+    </el-main>
+  </el-container>
 </template>
 
 <script>
@@ -54,15 +100,13 @@ export default {
     openFileExplorer() {
       this.$refs.fileInput.click();
     },
-    async uploadFiles(files) {
+    async uploadFiles(file) {
       this.uploading = true;
       this.uploadProgress = 0;
       this.uploadSuccess = false;
 
       const formData = new FormData();
-      for (const file of files) {
-        formData.append("files", file);
-      }
+      formData.append("file", file.raw);
 
       try {
         const response = await axios.post(
@@ -82,6 +126,7 @@ export default {
 
         if (response.status === 200) {
           this.uploadSuccess = true;
+          console.log(response.data);
           if (response.data.content) {
             this.extractedText = response.data.content;
           }
