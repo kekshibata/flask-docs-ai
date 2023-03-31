@@ -23,6 +23,7 @@ services:
     environment:
       - GOOGLE_APPLICATION_CREDENTIALS=/app/backend/google-credentials.json
       - FLASK_APP=/app/backend/app.py
+      - FLASK_DEBUG=True
     env_file:
       - .env
     command: flask run --host=0.0.0.0

@@ -48,7 +48,7 @@
           ドラッグ&ドロップ または <em>クリックしてアップロード</em>する
         </div>
         <div slot="tip" class="el-upload__tip">
-          Only PDF files are supported.
+          PDFファイルのみアップロード可能です
         </div>
       </el-upload>
       <el-progress
@@ -62,6 +62,23 @@
         type="success"
         :closable="false"
       ></el-alert>
+      <div v-if="processing" class="processing-text">
+        処理中<span class="dots">{{ processingDots }}</span>
+      </div>
+      <el-typography v-if="summary" style="margin-top: 20px">
+        <el-typography-item :level="4">要約</el-typography-item>
+      </el-typography>
+      <el-input
+        v-if="summary"
+        type="textarea"
+        :rows="5"
+        :readonly="true"
+        :value="summary"
+        placeholder="Summary"
+      ></el-input>
+      <el-typography v-if="extractedText" style="margin-top: 20px">
+        <el-typography-item :level="4">テキスト</el-typography-item>
+      </el-typography>
       <el-input
         v-if="extractedText"
         type="textarea"
@@ -82,6 +99,10 @@ export default {
       uploading: false,
       uploadProgress: 0,
       uploadSuccess: false,
+      processing: false,
+      processingDots: "",
+      extractedText: "",
+      summary: "",
     };
   },
   methods: {
@@ -100,6 +121,9 @@ export default {
     openFileExplorer() {
       this.$refs.fileInput.click();
     },
+    updateProcessingDots() {
+      this.processingDots = ".".repeat((this.processingDots.length % 3) + 1);
+    },
     async uploadFiles(file) {
       this.uploading = true;
       this.uploadProgress = 0;
@@ -109,7 +133,7 @@ export default {
       formData.append("file", file.raw);
 
       try {
-        const response = await axios.post(
+        const { data } = await axios.post(
           "http://localhost:5000/upload",
           formData,
           {
@@ -124,17 +148,35 @@ export default {
           }
         );
 
+        this.uploading = false;
+        this.uploadSuccess = true;
+        this.processing = true;
+
+        const file_path = data.file_path;
+
+        let processingTimer = setInterval(this.updateProcessingDots, 500);
+
+        const response = await axios.get("http://localhost:5000/process", {
+          params: {
+            file_path: file_path,
+          },
+        });
+
+        clearInterval(processingTimer);
+        this.processing = false;
+
         if (response.status === 200) {
-          this.uploadSuccess = true;
           console.log(response.data);
-          if (response.data.content) {
-            this.extractedText = response.data.content;
+          if (response.data.text && response.data.summary) {
+            this.extractedText = response.data.text;
+            this.summary = response.data.summary;
           }
         }
       } catch (error) {
         console.error("Upload failed:", error);
       } finally {
         this.uploading = false;
+        this.processing = false;
       }
     },
   },
@@ -142,14 +184,32 @@ export default {
 </script>
 
 <style scoped>
-.drop-zone {
-  border: 2px dashed #ccc;
-  border-radius: 5px;
-  padding: 50px;
-  text-align: center;
-  cursor: pointer;
+.processing-text {
+  font-size: 0.8em;
+  margin-top: 1em;
 }
-.drop-zone:hover {
-  background-color: #eee;
-}
+/* .dots { */
+/*   animation: blink 1s linear infinite; */
+/* } */
+/* @keyframes blink { */
+/*   0% { */
+/*     opacity: 1; */
+/*   } */
+/*   50% { */
+/*     opacity: 0; */
+/*   } */
+/*   100% { */
+/*     opacity: 1; */
+/*   } */
+/* } */
+/* .drop-zone { */
+/*   border: 2px dashed #ccc; */
+/*   border-radius: 5px; */
+/*   padding: 50px; */
+/*   text-align: center; */
+/*   cursor: pointer; */
+/* } */
+/* .drop-zone:hover { */
+/*   background-color: #eee; */
+/* } */
 </style>
