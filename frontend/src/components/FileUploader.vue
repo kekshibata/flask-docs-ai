@@ -22,6 +22,10 @@
           PDFファイルのみアップロード可能です
         </div>
       </el-upload>
+      <div class="input-group">
+        <label for="word-count">文字数： </label>
+        <input id="char-count" type="number" v-model="charCount" min="1" />
+      </div>
       <el-progress
         v-if="uploading"
         :percentage="uploadProgress"
@@ -29,7 +33,7 @@
       ></el-progress>
       <el-alert
         v-if="uploadSuccess"
-        title="Files uploaded successfully."
+        title="ファイルのアップロードに成功しました"
         type="success"
         :closable="false"
       ></el-alert>
@@ -74,24 +78,10 @@ export default {
       processingDots: "",
       extractedText: "",
       summary: "",
+      charCount: 300,
     };
   },
   methods: {
-    handleDragOver(e) {
-      e.dataTransfer.dropEffect = "move";
-    },
-    handleDrop(e) {
-      const files = e.dataTransfer.files;
-      this.uploadFiles(files);
-    },
-    handleFileUpload(e) {
-      const files = e.target.files;
-      this.uploadFiles(files);
-      this.$refs.fileInput.value = null;
-    },
-    openFileExplorer() {
-      this.$refs.fileInput.click();
-    },
     updateProcessingDots() {
       this.processingDots = ".".repeat((this.processingDots.length % 3) + 1);
     },
@@ -102,6 +92,7 @@ export default {
 
       const formData = new FormData();
       formData.append("file", file.raw);
+      formData.append("charCount", this.charCount);
 
       try {
         const { data } = await axios.post(
@@ -123,13 +114,15 @@ export default {
         this.uploadSuccess = true;
         this.processing = true;
 
-        const file_path = data.file_path;
+        const filename = data.filename;
+        const file_id = data.file_id;
 
         let processingTimer = setInterval(this.updateProcessingDots, 500);
 
         const response = await axios.get("http://localhost:5000/process", {
           params: {
-            file_path: file_path,
+            filename,
+            file_id,
           },
         });
 

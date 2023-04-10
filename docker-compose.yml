@@ -30,7 +30,12 @@ services:
   db:
     image: mongo:4.4
     restart: always
+    volumes:
+      - mongo-data:/data/db
     environment:
-      MONGO_INITDB_DATABASE: files
+      - MONGO_INITDB_ROOT_USERNAME=myuser
+      - MONGO_INITDB_ROOT_PASSWORD=mypassword
     ports:
       - "27017:27017"
+volumes:
+  mongo-data:
